@@ -35,59 +35,50 @@
         <label>Codigo de barra:</label>
         <input type="number" id="num2" placeholder="Ej. 779123456789">
     </div>
-    <button id="btnGuardar">Guardar Artículo</button>
+    <button onclick="guardarArticulo()">Guardar Artículo</button>
 
     <div class="buscar-box">
         <label>🔍 Buscar por Número de artículo:</label>
-        <input type="number" id="buscador" placeholder="Escribe el Número de artículo...">
+        <input type="number" id="buscador" oninput="mostrarArticulos()" placeholder="Escribe el Número de artículo...">
     </div>
 
     <ul id="listaArticulos"></ul>
 
-    <!-- 1. INTEGRACIÓN DE LOS SDKS DE FIREBASE DESDE CDN -->
-    <script type="module">
-        // ✅ DIRECCIONES LARGAS CORREGIDAS CON SU RUTA COMPLETA .js
-        import { initializeApp } from "https://gstatic.com";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://gstatic.com";
+    <script>
+        let db;
+        let inventario = [];
 
-        // ✅ AUTHDOMAIN CORREGIDO PARA TU PROYECTO TRADUCTORDIA26
-        const firebaseConfig = {
-            apiKey: "AIzaSyByyy48yq53W27HHU7-qWmlLHdYNl3ZtdM",
-            authDomain: "traductordia26.firebaseapp.com",
-            projectId: "traductordia26",
-            storageBucket: "traductordia26.firebasestorage.app",
-            messagingSenderId: "471114426581",
-            appId: "1:471114426581:web:66837b77b26fc24c3d1a5c",
-            measurementId: "G-EYL517FCEG"
+        // 1. INICIALIZAR INDEXEDDB
+        const request = indexedDB.open("InventarioDB", 1);
+
+        request.onupgradeneeded = function(e) {
+            db = e.target.result;
+            db.createObjectStore("articulos", { keyPath: "id", autoIncrement: true });
         };
 
-        // Inicializar la App y la Base de Datos
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        request.onsuccess = function(e) {
+            db = e.target.result;
+            cargarDatosDesdeBD();
+        };
 
-        // Variables de inventario y elementos del DOM
-        let inventario = [];
-        const btnGuardar = document.getElementById('btnGuardar');
-        const buscador = document.getElementById('buscador');
+        request.onerror = function(e) {
+            console.error("Error abriendo la base de datos permanente");
+        };
 
-        // Asignar eventos de manera moderna (tipo módulo)
-        btnGuardar.addEventListener('click', guardarArticulo);
-        buscador.addEventListener('input', mostrarArticulos);
+        // 2. CARGAR DATOS DESDE LA MEMORIA DEL TELÉFONO
+        function cargarDatosDesdeBD() {
+            const transaction = db.transaction(["articulos"], "readonly");
+            const objectStore = transaction.objectStore("articulos");
+            const getAllRequest = objectStore.getAll();
 
-        // 2. ESCUCHAR CAMBIOS EN VIVO DESDE FIREBASE (Sincronización total)
-        onSnapshot(collection(db, "articulos"), (snapshot) => {
-            inventario = [];
-            snapshot.forEach((doc) => {
-                inventario.push({
-                    id: doc.id, 
-                    ...doc.data()
-                });
-            });
-            mostrarArticulos(); 
-        });
+            getAllRequest.onsuccess = function() {
+                inventario = getAllRequest.result;
+                mostrarArticulos();
+            };
+        }
 
-        // 3. GUARDAR ARTÍCULO EN FIREBASE
-        async function guardarArticulo() {
+        // 3. GUARDAR ARTÍCULO EN LA BASE DE DATOS
+        function guardarArticulo() {
             const nombre = document.getElementById('nombre').value.trim();
             const num1 = document.getElementById('num1').value;
             const num2 = document.getElementById('num2').value;
@@ -99,22 +90,22 @@
 
             const nuevoArticulo = { nombre, num1, num2 };
 
-            try {
-                await addDoc(collection(db, "articulos"), nuevoArticulo);
+            const transaction = db.transaction(["articulos"], "readwrite");
+            const objectStore = transaction.objectStore("articulos");
+            const addRequest = objectStore.add(nuevoArticulo);
 
-                // Limpiar campos del formulario
+            addRequest.onsuccess = function() {
+                cargarDatosDesdeBD();
+
                 document.getElementById('nombre').value = '';
                 document.getElementById('num1').value = '';
                 document.getElementById('num2').value = '';
-            } catch (error) {
-                console.error("Error al guardar en Firebase:", error);
-                alert("Error al intentar guardar los datos.");
-            }
+            };
         }
 
-        // 4. FILTRAR Y MOSTRAR EN TIEMPO REAL LOCALMENTE
+        // 4. FILTRAR Y MOSTRAR EN TIEMPO REAL (Filtro por Número de artículo)
         function mostrarArticulos() {
-            const filtro = buscador.value;
+            const filtro = document.getElementById('buscador').value;
             const lista = document.getElementById('listaArticulos');
             lista.innerHTML = ''; 
 
@@ -128,30 +119,31 @@
                         <div class="texto-articulo">
                             <strong>${articulo.nombre}</strong> — Nº: ${articulo.num1} | Cód: ${articulo.num2}
                         </div>
+                        <button class="btn-eliminar" onclick="eliminarArticulo(${articulo.id})">🗑️ Borrar</button>
                     `;
-
-                    const btnEliminar = document.createElement('button');
-                    btnEliminar.className = 'btn-eliminar';
-                    btnEliminar.innerHTML = '🗑️ Borrar';
-                    btnEliminar.onclick = () => eliminarArticulo(articulo.id);
-
-                    li.appendChild(btnEliminar);
+                    
                     lista.appendChild(li);
                 }
             });
         }
 
-        // 5. ELIMINAR ARTÍCULO DE FIREBASE
-        async function eliminarArticulo(id) {
+        // 5. ELIMINAR ARTÍCULO DE LA BASE DE DATOS
+        function eliminarArticulo(id) {
             if (confirm("¿Seguro que quieres eliminar este artículo?")) {
-                try {
-                    await deleteDoc(doc(db, "articulos", id));
-                } catch (error) {
-                    console.error("Error al borrar en Firebase:", error);
+                const transaction = db.transaction(["articulos"], "readwrite");
+                const objectStore = transaction.objectStore("articulos");
+                const deleteRequest = objectStore.delete(id);
+
+                deleteRequest.onsuccess = function() {
+                    cargarDatosDesdeBD();
+                };
+
+                deleteRequest.onerror = function() {
                     alert("No se pudo eliminar el artículo.");
-                }
+                };
             }
         }
     </script>
+
 </body>
 </html>
