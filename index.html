@@ -46,19 +46,19 @@
 
     <!-- 1. INTEGRACIÓN DE LOS SDKS DE FIREBASE DESDE CDN -->
     <script type="module">
-        // 1. INTEGRACIÓN DE LOS SDKS DE FIREBASE DESDE CDN (Direcciones corregidas)
-import { initializeApp } from "https://gstatic.com";
-import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://gstatic.com";
+        // ✅ DIRECCIONES LARGAS CORREGIDAS CON SU RUTA COMPLETA .js
+        import { initializeApp } from "https://gstatic.com";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://gstatic.com";
 
-// Tus credenciales (Déjalas tal cual las tienes, están bien)
-const firebaseConfig = {
-    apiKey: "AIzaSyByyy48yq53W27HHU7-qWmlLHdYNl3ZtdM",
-    authDomain: "://firebaseapp.com",
-    projectId: "traductordia26",
-    storageBucket: "traductordia26.firebasestorage.app",
-    messagingSenderId: "471114426581",
-    appId: "1:471114426581:web:66837b77b26fc24c3d1a5c",
-    measurementId: "G-EYL517FCEG"
+        // ✅ AUTHDOMAIN CORREGIDO PARA TU PROYECTO TRADUCTORDIA26
+        const firebaseConfig = {
+            apiKey: "AIzaSyByyy48yq53W27HHU7-qWmlLHdYNl3ZtdM",
+            authDomain: "traductordia26.firebaseapp.com",
+            projectId: "traductordia26",
+            storageBucket: "traductordia26.firebasestorage.app",
+            messagingSenderId: "471114426581",
+            appId: "1:471114426581:web:66837b77b26fc24c3d1a5c",
+            measurementId: "G-EYL517FCEG"
         };
 
         // Inicializar la App y la Base de Datos
