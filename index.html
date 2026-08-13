@@ -1,221 +1,150 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>El Inventario Oculto De Aquiles</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #ffffff;
-    }
-    header {
-      background-color: #000000;
-      color: #ffffff;
-      padding: 1em 0;
-      text-align: center;
-    }
-    .productos {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      padding: 20px;
-    }
-    .producto {
-      background-color: #ffffff;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      margin: 10px;
-      padding: 20px;
-      text-align: center;
-      width: 200px;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    }
-    .producto img {
-      width: 100%;
-      height: auto;
-      border-radius: 5px;
-    }
-    .gemas {
-      display: inline-flex;
-      align-items: center;
-    }
-    .gemas img {
-      width: 20px;
-      height: 20px;
-      margin-left: 5px;
-    }
-    button {
-      margin-top: 10px;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .btn-pdf {
-      background-color: #008000;
-      color: #fff;
-    }
-    .btn-pdf:hover {
-      background-color: #006400;
-    }
-    .btn-3d {
-      background-color: #0066cc;
-      color: #fff;
-    }
-    .btn-3d:hover {
-      background-color: #004c99;
-    }
-    footer {
-      text-align: center;
-      padding: 10px;
-      background-color: #008000;
-      color: #000000;
-      margin-top: 20px;
-    }
-    /* Estilos del modal */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      padding-top: 60px;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.7);
-    }
-    .modal-contenido {
-      background-color: #ffffff;
-      margin: auto;
-      padding: 20px;
-      border-radius: 10px;
-      width: 80%;
-      max-width: 800px;
-      position: relative;
-    }
-    .cerrar {
-      color: #aaa;
-      position: absolute;
-      right: 20px;
-      top: 10px;
-      font-size: 28px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    iframe {
-      width: 100%;
-      height: 500px;
-      border: none;
-    }
-  </style>
-
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario Permanente</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 20px auto; padding: 15px; background-color: #f4f4f9; }
+        h2 { color: #333; text-align: center; }
+        .form-group { margin-bottom: 10px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        button { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #218838; }
+        .buscar-box { margin-top: 20px; background-color: #e9ecef; padding: 10px; border-radius: 4px; }
+        ul { list-style-type: none; padding: 0; margin-top: 15px; }
+        li { background: white; padding: 10px; margin-bottom: 5px; border-radius: 4px; border-left: 5px solid #007bff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .btn-eliminar { background-color: #dc3545; padding: 5px 10px; font-size: 12px; border-radius: 4px; width: auto; margin-left: 10px; }
+        .btn-eliminar:hover { background-color: #bd2130; }
+        .texto-articulo { flex-grow: 1; }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>El Inventario Oculto De Aquiles</h1>
-    <p>Creada por Briguez Aquiles 6°3 A</p>
-  </header>
 
-  <section class="productos">
-    <div class="producto">
-      <img src="portada1.png" alt="Producto 1">
-      <h2>Doom X Atmega328P</h2>
-      <p>Videojuego en Arduino Uno</p>
-      <button class="btn-pdf" onclick="abrirModal('pdf1')">Ver informe del proyecto</button>
-      <button class="btn-3d" onclick="abrirModal('model1')">Ver Modelo 3D del proyecto</button>
+    <h2>Traductor De Codigos Dia</h2>
+    <div class="form-group">
+        <label>Nombre Artículo:</label>
+        <input type="text" id="nombre" placeholder="Ej. Tuerca">
+    </div>
+    <div class="form-group">
+        <label>Número de artículo:</label>
+        <input type="number" id="num1" placeholder="Ej. 15">
+    </div>
+    <div class="form-group">
+        <label>Codigo de barra:</label>
+        <input type="number" id="num2" placeholder="Ej. 779123456789">
+    </div>
+    <button onclick="guardarArticulo()">Guardar Artículo</button>
+
+    <div class="buscar-box">
+        <label>🔍 Buscar por Número de artículo:</label>
+        <input type="number" id="buscador" oninput="mostrarArticulos()" placeholder="Escribe el Número de artículo...">
     </div>
 
-    <div class="producto">
-      <img src="https://www.brawlstarsdicas.com.br/wp-content/uploads/2018/07/hipercarga-frank-brawl-stars-pancada-sismica-hypercharge-seismic-smash.png" alt="Producto 2">
-      <h2>Hipercarga De Frank</h2>
-      <p>Precio: <span class="gemas">150 gemas<img src="https://i.pinimg.com/736x/d7/ff/e0/d7ffe0cfb53b47edf78fd096ec33050c.jpg" alt="Gemas"></span></p>
-      <p>Al activar su hipercarga, Frank generará una gran zona de impacto.</p>
-      <button class="btn-pdf" onclick="abrirModal('pdf2')">Ver PDF</button>
-      <button class="btn-3d" onclick="abrirModal('model2')">Ver Modelo 3D</button>
-    </div>
+    <ul id="listaArticulos"></ul>
 
-    <div class="producto">
-      <img src="https://static.wikia.nocookie.net/brawlstars/images/7/78/HE-Bonnie1.png/revision/latest?cb=20220525145557&path-prefix=es" alt="Producto 3">
-      <h2>Bonnie</h2>
-      <p>El alcance de la habilidad de Bonnie aumentará en un 36%.</p>
-      <p>Precio: <span class="gemas">300 gemas<img src="https://i.pinimg.com/736x/d7/ff/e0/d7ffe0cfb53b47edf78fd096ec33050c.jpg" alt="Gemas"></span></p>
-      <button class="btn-pdf" onclick="abrirModal('pdf3')">Ver PDF</button>
-      <button class="btn-3d" onclick="abrirModal('model3')">Ver Modelo 3D</button>
-    </div>
-  </section>
+    <script>
+        let db;
+        let inventario = [];
 
-  <div id="pdf1" class="modal">
-    <div class="modal-contenido">
-      <span class="cerrar" onclick="cerrarModal('pdf1')">&times;</span>
-      <h2>Doom mini</h2>
-      <iframe src="DoomxArduino.pdf"></iframe>
-    </div>
-  </div>
+        // 1. INICIALIZAR INDEXEDDB
+        const request = indexedDB.open("InventarioDB", 1);
 
-  <div id="pdf2" class="modal">
-    <div class="modal-contenido">
-      <span class="cerrar" onclick="cerrarModal('pdf2')">&times;</span>
-      <h2>Hipercarga De Frank - PDF</h2>
-      <iframe src="archivos/frank.pdf"></iframe>
-    </div>
-  </div>
+        request.onupgradeneeded = function(e) {
+            db = e.target.result;
+            db.createObjectStore("articulos", { keyPath: "id", autoIncrement: true });
+        };
 
-  <div id="pdf3" class="modal">
-    <div class="modal-contenido">
-      <span class="cerrar" onclick="cerrarModal('pdf3')">&times;</span>
-      <h2>Bonnie - PDF</h2>
-      <iframe src="archivos/bonnie.pdf"></iframe>
-    </div>
-  </div>
+        request.onsuccess = function(e) {
+            db = e.target.result;
+            cargarDatosDesdeBD();
+        };
 
-  <div id="model1" class="modal">
-    <div class="modal-contenido">
-      <span class="cerrar" onclick="cerrarModal('model1')">&times;</span>
-      <h2>Modelo 3D de Doom Mini compa</h2>
-      <model-viewer src="reles.glb" alt="Doom Mini" auto-rotate camera-controls style="width: 100%; height: 400px;"></model-viewer>
-    </div>
-  </div>
+        request.onerror = function(e) {
+            console.error("Error abriendo la base de datos permanente");
+        };
 
-  <div id="model2" class="modal">
-    <div class="modal-contenido">
-      <span class="cerrar" onclick="cerrarModal('model2')">&times;</span>
-      <h2>Modelo 3D - Frank</h2>
-      <model-viewer src="modelos/frank.glb" alt="Modelo 3D Frank" auto-rotate camera-controls style="width: 100%; height: 400px;"></model-viewer>
-    </div>
-  </div>
+        // 2. CARGAR DATOS DESDE LA MEMORIA DEL TELÉFONO
+        function cargarDatosDesdeBD() {
+            const transaction = db.transaction(["articulos"], "readonly");
+            const objectStore = transaction.objectStore("articulos");
+            const getAllRequest = objectStore.getAll();
 
-  <div id="model3" class="modal">
-    <div class="modal-contenido">
-      <span class="cerrar" onclick="cerrarModal('model3')">&times;</span>
-      <h2>Modelo 3D - Bonnie</h2>
-      <model-viewer src="modelos/bonnie.glb" alt="Modelo 3D Bonnie" auto-rotate camera-controls style="width: 100%; height: 400px;"></model-viewer>
-    </div>
-  </div>
-
-  <footer>
-    <p>&copy; El Inventario Oculto.</p>
-  </footer>
-
-  <script>
-    function abrirModal(id) {
-      document.getElementById(id).style.display = "block";
-    }
-    function cerrarModal(id) {
-      document.getElementById(id).style.display = "none";
-    }
-    window.onclick = function(event) {
-      const modales = document.querySelectorAll('.modal');
-      modales.forEach(modal => {
-        if (event.target == modal) {
-          modal.style.display = "none";
+            getAllRequest.onsuccess = function() {
+                inventario = getAllRequest.result;
+                mostrarArticulos();
+            };
         }
-      });
-    }
-  </script>
+
+        // 3. GUARDAR ARTÍCULO EN LA BASE DE DATOS
+        function guardarArticulo() {
+            const nombre = document.getElementById('nombre').value.trim();
+            const num1 = document.getElementById('num1').value;
+            const num2 = document.getElementById('num2').value;
+
+            if (nombre === "" || num1 === "" || num2 === "") {
+                alert("Por favor, completa todos los campos.");
+                return;
+            }
+
+            const nuevoArticulo = { nombre, num1, num2 };
+
+            const transaction = db.transaction(["articulos"], "readwrite");
+            const objectStore = transaction.objectStore("articulos");
+            const addRequest = objectStore.add(nuevoArticulo);
+
+            addRequest.onsuccess = function() {
+                cargarDatosDesdeBD();
+
+                document.getElementById('nombre').value = '';
+                document.getElementById('num1').value = '';
+                document.getElementById('num2').value = '';
+            };
+        }
+
+        // 4. FILTRAR Y MOSTRAR EN TIEMPO REAL (Filtro por Número de artículo)
+        function mostrarArticulos() {
+            const filtro = document.getElementById('buscador').value;
+            const lista = document.getElementById('listaArticulos');
+            lista.innerHTML = ''; 
+
+            inventario.forEach(articulo => {
+                // Comprobamos la coincidencia con el Número de artículo (num1)
+                const cumpleNum1 = articulo.num1.toString().includes(filtro);
+
+                if (cumpleNum1) {
+                    const li = document.createElement('li');
+                    
+                    li.innerHTML = `
+                        <div class="texto-articulo">
+                            <strong>${articulo.nombre}</strong> — Nº: ${articulo.num1} | Cód: ${articulo.num2}
+                        </div>
+                        <button class="btn-eliminar" onclick="eliminarArticulo(${articulo.id})">🗑️ Borrar</button>
+                    `;
+                    
+                    lista.appendChild(li);
+                }
+            });
+        }
+
+        // 5. ELIMINAR ARTÍCULO DE LA BASE DE DATOS
+        function eliminarArticulo(id) {
+            if (confirm("¿Seguro que quieres eliminar este artículo?")) {
+                const transaction = db.transaction(["articulos"], "readwrite");
+                const objectStore = transaction.objectStore("articulos");
+                const deleteRequest = objectStore.delete(id);
+
+                deleteRequest.onsuccess = function() {
+                    cargarDatosDesdeBD();
+                };
+
+                deleteRequest.onerror = function() {
+                    alert("No se pudo eliminar el artículo.");
+                };
+            }
+        }
+    </script>
+
 </body>
 </html>
