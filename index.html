@@ -18,9 +18,15 @@
         .buscar-box { margin-top: 20px; background-color: #e9ecef; padding: 10px; border-radius: 4px; }
         ul { list-style-type: none; padding: 0; margin-top: 15px; }
         li { background: white; padding: 10px; margin-bottom: 5px; border-radius: 4px; border-left: 5px solid #007bff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
-        .btn-eliminar { background-color: #dc3545; padding: 5px 10px; font-size: 12px; border-radius: 4px; width: auto; margin-left: 10px; }
+        
+        /* Botones de acción en la lista */
+        .acciones-item { display: flex; gap: 5px; align-items: center; }
+        .btn-copiar { background-color: #007bff; color: white; padding: 5px 10px; font-size: 12px; border-radius: 4px; width: auto; border: none; }
+        .btn-copiar:hover { background-color: #0056b3; }
+        .btn-eliminar { background-color: #dc3545; padding: 5px 10px; font-size: 12px; border-radius: 4px; width: auto; border: none; }
         .btn-eliminar:hover { background-color: #bd2130; }
-        .texto-articulo { flex-grow: 1; }
+        
+        .texto-articulo { flex-grow: 1; margin-right: 10px; }
         .badge-gramos { background-color: #17a2b8; color: white; padding: 2px 6px; font-size: 11px; border-radius: 3px; font-weight: bold; margin-left: 5px; }
     </style>
 </head>
@@ -123,21 +129,16 @@
             };
         }
 
-        // 4. FILTRAR Y MOSTRAR EN TIEMPO REAL (Filtro por Número o Nombre)
+        // 4. FILTRAR Y MOSTRAR EN TIEMPO REAL
         function mostrarArticulos() {
-            // Convertimos la búsqueda a minúsculas para que no importen las mayúsculas/minúsculas
             const filtro = document.getElementById('buscador').value.toLowerCase().trim();
             const lista = document.getElementById('listaArticulos');
             lista.innerHTML = ''; 
 
             inventario.forEach(articulo => {
-                // Comprobamos coincidencia en Número de artículo
                 const cumpleNum1 = articulo.num1.toString().includes(filtro);
-                
-                // Comprobamos coincidencia en Nombre de artículo (también pasándolo a minúsculas)
                 const cumpleNombre = articulo.nombre.toLowerCase().includes(filtro);
 
-                // Si cumple cualquiera de las dos condiciones, se muestra en pantalla
                 if (cumpleNum1 || cumpleNombre) {
                     const li = document.createElement('li');
                     const etiquetaGramos = articulo.esGramos ? '<span class="badge-gramos">Gramos</span>' : '';
@@ -146,7 +147,11 @@
                         <div class="texto-articulo">
                             <strong>Nº: ${articulo.num1}</strong> — DSD: ${articulo.num2} | <span>${articulo.nombre}</span>${etiquetaGramos}
                         </div>
-                        <button class="btn-eliminar" onclick="eliminarArticulo(${articulo.id})">🗑️ Borrar</button>
+                        <div class="acciones-item">
+                            <!-- Botón para copiar solo el DSD -->
+                            <button class="btn-copiar" onclick="copiarDsd('${articulo.num2}', this)">📋 Copiar</button>
+                            <button class="btn-eliminar" onclick="eliminarArticulo(${articulo.id})">🗑️ Borrar</button>
+                        </div>
                     `;
                     
                     lista.appendChild(li);
@@ -154,7 +159,24 @@
             });
         }
 
-        // 5. ELIMINAR ARTÍCULO DE LA BASE DE DATOS
+        // 5. FUNCIÓN ESPECIAL PARA COPIAR AL PORTAPAPELES
+        function copiarDsd(numeroDsd, botonPresionado) {
+            navigator.clipboard.writeText(numeroDsd).then(() => {
+                // Pequeño efecto visual para saber que copió bien cambiendo el texto temporalmente
+                const textoOriginal = botonPresionado.innerHTML;
+                botonPresionado.innerHTML = '✅ ¡Copiado!';
+                botonPresionado.style.backgroundColor = '#28a745';
+                
+                setTimeout(() => {
+                    botonPresionado.innerHTML = textoOriginal;
+                    botonPresionado.style.backgroundColor = '#007bff';
+                }, 1200);
+            }).catch(err => {
+                alert('No se pudo copiar de forma automática');
+            });
+        }
+
+        // 6. ELIMINAR ARTÍCULO DE LA BASE DE DATOS
         function eliminarArticulo(id) {
             if (confirm("¿Seguro que quieres eliminar este artículo?")) {
                 const transaction = db.transaction(["articulos"], "readwrite");
